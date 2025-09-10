@@ -3,7 +3,10 @@ package com.example.carins.service;
 import com.example.carins.model.Car;
 import com.example.carins.repo.CarRepository;
 import com.example.carins.repo.InsurancePolicyRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,8 +32,15 @@ public class CarService {
     }
 
     public boolean isInsuranceValid(Long carId, LocalDate date) {
-        if (carId == null || date == null) return false;
-        // TODO: optionally throw NotFound if car does not exist
+        if (carId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Car Id must not be null");
+        }
+        if (date == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date must not be null");
+        }
+        if(!carRepository.existsById(carId)){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car not found");
+        }
         return policyRepository.existsActiveOnDate(carId, date);
     }
 }
